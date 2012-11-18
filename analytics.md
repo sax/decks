@@ -4,16 +4,17 @@ how do you easily manage web analytics in code?
 
 # Example code from a few months ago
 
-    @@@ js
-    $('#layouts-common-left-nav... a').live('click', 
-      function() {
-        var categoryName = $(this).text();
-        analyticsResponder({
-          action: 'latest_trends', 
-          category: 'navigation', 
-          label: categoryName
-        });
+```js
+$('#layouts-common-left-nav... a').live('click', 
+  function() {
+    var categoryName = $(this).text();
+    analyticsResponder({
+      action: 'latest_trends', 
+      category: 'navigation', 
+      label: categoryName
     });
+});
+```
 
 analytics.js -> google_analytics_deprecated.js
 
@@ -22,16 +23,17 @@ analytics.js -> google_analytics_deprecated.js
 
 # Why don't we like this again?
 
-    @@@ js
-    describe('Clicking product title', function () {
-      var selector = '.br-sf-widget-merchant...';
-      itShouldFireGAEvent('click', 
-        selector, 
-        ['product', 
-         'bloomreach_pdp:more_click', 
-         '-The-Fuchsia-of-Fashion-Dress', 
-         1
-    ]);});
+```js
+describe('Clicking product title', function () {
+  var selector = '.br-sf-widget-merchant...';
+  itShouldFireGAEvent('click', 
+    selector, 
+    ['product', 
+     'bloomreach_pdp:more_click', 
+     '-The-Fuchsia-of-Fashion-Dress', 
+     1
+]);});
+```
 
 Multiply this by 8 billion
 
@@ -80,54 +82,60 @@ I was told it would be more awesome than this
 
 # I want to see this
 
-    @@@ ruby
-    %div.row{ :analytics => {
-      :ga => ['user_actions', 'attribute_selection', "length:#{label}"],
-      :event_to_bind => 'mouseup'
-    }}
+```ruby
+%div.row{ :analytics => {
+  :ga => ['user_actions', 'attribute_selection', "length:#{label}"],
+  :event_to_bind => 'mouseup'
+}}
+```
 
 # In fact, I want to see this
 
-    @@@ ruby
-    %div.row{ :analytics => {
-      :ga => ['my_category', 'my_action', "my_value"],
-      :omniture => ['my>link>name', 'event10', '1;1'],
-      :event_to_bind => 'mouseup'
-    }}
+```ruby
+%div.row{ :analytics => {
+  :ga => ['my_category', 'my_action', "my_value"],
+  :omniture => ['my>link>name', 'event10', '1;1'],
+  :event_to_bind => 'mouseup'
+}}
+```
 
 # Oh, and…
 
-    @@@ ruby
-    link_to "awesomeness", "/here",
-      :analytics => {
-        :ga => ['user_actions', 'whoa', 'awesome'],
-        :event_to_bind => 'mouseup'
-      }
+```ruby
+link_to "awesomeness", "/here",
+  :analytics => {
+    :ga => ['user_actions', 'whoa', 'awesome'],
+    :event_to_bind => 'mouseup'
+  }
+```
 
 # So what is this actually doing?
 
 this:
 
-    @@@ ruby
-    :ga => ['user_actions', 'whoa', 'awesome']
+```ruby
+:ga => ['user_actions', 'whoa', 'awesome']
+```
 
 becomes:
 
-    @@@ js
-    data-analytics-ga="%5B%22user_actions%22%2C%22whoa%22%2C%22awesome%22%5D"
+```js
+data-analytics-ga="%5B%22user_actions%22%2C%22whoa%22%2C%22awesome%22%5D"
+```
 
 * note that the array is JSON encoded and escaped
 * this makes it very easy to decode later in javascript
 
 # To be totally clear
 
-    @@@ html
-    <a href="/link" 
-      data-analytics-ga="%5B%22user_actions%22%2C%22whoa%22%2C%22awesome%22%5D"
-      data-analytics-omniture="%5B%22my%3Elink%3Ename%22%2C%22event10%22%2C%221%3B1%22%5D"
-      data-analytics-event="mouseup">
-        awesomeness
-    </a>
+```html
+<a href="/link" 
+  data-analytics-ga="%5B%22user_actions%22%2C%22whoa%22%2C%22awesome%22%5D"
+  data-analytics-omniture="%5B%22my%3Elink%3Ename%22%2C%22event10%22%2C%221%3B1%22%5D"
+  data-analytics-event="mouseup">
+    awesomeness
+</a>
+```
 
 * :event_to_bind is optional, and writes out "mouseup" if not explicitly set
 
@@ -149,20 +157,21 @@ becomes:
 
 # Unit tests are there to cover the bases
 
-    @@@ js
-    describe('when data attributes on an element', function () {
-      $.each(['mouseup', 'click', ...], function (i, event) {
-        describe('explicit ' + event, function () {
-          it("should fire GA on event : " + event, function () {
-            setFixture(event, 
-              "%5B%22thing%22%2C%22other%20thing%22%5D", "");
-            triggerEvent(event);
-            expect(testStub.callback)
-              .toHaveBeenCalledWith(["thing", "other thing"]);
-          });
-        });
+```js
+describe('when data attributes on an element', function () {
+  $.each(['mouseup', 'click', ...], function (i, event) {
+    describe('explicit ' + event, function () {
+      it("should fire GA on event : " + event, function () {
+        setFixture(event, 
+          "%5B%22thing%22%2C%22other%20thing%22%5D", "");
+        triggerEvent(event);
+        expect(testStub.callback)
+          .toHaveBeenCalledWith(["thing", "other thing"]);
       });
     });
+  });
+});
+```
 
 Multiply this by 1
 
